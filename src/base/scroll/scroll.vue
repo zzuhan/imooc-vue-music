@@ -27,6 +27,10 @@ export default {
     refreshDelay: {
       type: Number,
       default: 20
+    },
+    listenScroll: {
+      type: Boolean,
+      default: false
     }
   },
   mounted() {
@@ -50,6 +54,10 @@ export default {
         probeType: this.probeType,
         click: this.click
       });
+      if (this.listenScroll) {
+        // 触摸滑动、scrollToElement都会触发scroll事件
+        this.scroll.on("scroll", pos => this.$emit("scroll", pos));
+      }
     },
     disable() {
       this.scroll && this.scroll.disable();
@@ -59,6 +67,14 @@ export default {
     },
     refresh() {
       this.scroll && this.scroll.refresh();
+    },
+    // 滚动到偏移量
+    scrollTo() {
+      this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments);
+    },
+    // 滚动到DOM元素
+    scrollToElement() {
+      this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
     }
   }
 };
