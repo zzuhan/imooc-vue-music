@@ -116,7 +116,6 @@ export default {
       }, 20);
     },
     scrollY(newY) {
-      console.log("scrollY", this.scrollY);
       const listHeight = this.listHeight;
       // better-scroll模拟iOS风格，在两端可以弹性滚动。
       // 在最顶部弹性滚动时
