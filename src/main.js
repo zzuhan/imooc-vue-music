@@ -2,6 +2,7 @@ import "babel-polyfill"; // 将整个库都导入进来：将该库导出的变�
 import Vue from "vue";
 import App from "./app";
 import router from "./router";
+import store from "./store";
 import fastclick from "fastclick";
 import VueLazyload from "vue-lazyload";
 import "common/stylus/index.styl";
@@ -15,5 +16,6 @@ Vue.use(VueLazyload, {
 new Vue({
   el: "#root",
   router,
+  store,
   render: h => h(App)
 });

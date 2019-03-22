@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Singer from "components/singer/singer";
+import SingerDetail from "components/singer-detail/singer-detail";
 
 const Recommend = () => import("components/recommend/recommend");
 
@@ -20,7 +21,13 @@ export default new Router({
     },
     {
       path: "/singer",
-      component: Singer
+      component: Singer,
+      children: [
+        {
+          path: ":id",
+          component: SingerDetail
+        }
+      ]
     }
   ]
 });
