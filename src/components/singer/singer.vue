@@ -16,7 +16,20 @@ const HOT_NAME = "热门";
 export default {
   data() {
     return {
-      singers: [] // 分类数组：每个成员是一个分类。每个分类的items属性又是一个数组（该分类下的所有歌手）
+      /*
+        singers（歌手）数据结构：
+        [
+          title:String,
+          items:[
+            {
+              id:String,
+              name:String,
+              avatar:String
+            }
+          ]
+        ]
+       */
+      singers: []
     };
   },
   created() {
