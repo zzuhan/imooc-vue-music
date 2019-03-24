@@ -5,9 +5,15 @@
             <i class="icon-back"/>
         </div>
         <h1 class="title" v-html="title"/>
-        <!-- 歌手图片 -->
+        <!-- 歌手海报 -->
         <div class="bg-image" :style="bgStyle" ref="bgImage">
-
+             <div class="play-wrapper">
+                <div ref="playBtn" v-show="songs.length>0" class="play">
+                <i class="icon-play"></i>
+                <span class="text">随机播放全部</span>
+                </div>
+            </div>
+            <div class="filter" ref="filter"/>
         </div>
         <!-- 背景层 -->
         <div class="bg-layer" ref="layer"/>
@@ -16,15 +22,23 @@
             <div class="song-list-wrapper">
                 <song-list :songs="songs"/>
             </div>
+            <div v-show="!songs.length" class="loading-container">
+                <loading></loading>
+            </div>
         </scroll>
     </div>
 </template>
 
 <script>
 import Scroll from "base/scroll/scroll";
+import Loading from "base/loading/loading";
 import SongList from "base/song-list/song-list";
+import { prefixStyle } from "common/js/dom";
 
 const RESERVED_HEIGHT = 40;
+
+const transform = prefixStyle("transform");
+const backdropFilter = prefixStyle("backdrop-filter");
 
 export default {
   props: {
@@ -51,8 +65,8 @@ export default {
     this.listenScroll = true;
   },
   mounted() {
-    this.imageHeight = this.$refs.bgImage.clientHeight;
-    this.minTransalteY = -this.imageHeight + RESERVED_HEIGHT;
+    this.imageHeight = this.$refs.bgImage.clientHeight; // 图片高度
+    this.minTransalteY = -this.imageHeight + RESERVED_HEIGHT; // 背景层最小偏移量
     this.$refs.list.$el.style.top = `${this.imageHeight}px`; // 计算出滚动容器的顶部位置
   },
   computed: {
@@ -70,23 +84,40 @@ export default {
   },
   watch: {
     scrollY(newVal) {
-      let translateY = Math.max(this.minTransalteY, newVal);
-      this.$refs.layer.style.webkitTransform = `translate3d(0,${translateY}px,0)`;
       let zIndex = 0;
-      if(newVal<this.minTransalteY){
-          zIndex = 10;
-          this.$refs.bgImage.style.paddingTop = 0;
-          this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`;
-      }else{
-          this.$refs.bgImage.style.paddingTop = '70%';
-          this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`;
+      // 遮罩层向上偏移
+      let translateY = Math.max(this.minTransalteY, newVal);
+      this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`;
+      // 背景图片模糊
+      let blur = 0;
+      let scale = 1;
+      const percent = Math.abs(newVal / this.imageHeight);
+      if (newVal < 0) {
+        blur = Math.min(20, percent * 20);
+      } else {
+        scale = 1 + percent;
+        zIndex = 10; // 海报遮盖歌曲列表
+      }
+      this.$refs.filter.style[backdropFilter] = `blur(${blur}px)`;
+      this.$refs.bgImage.style[transform] = `scale(${scale})`;
+      // 背景图片尺寸、随机播放按钮显示/隐藏
+      if (newVal < this.minTransalteY) {
+        zIndex = 10;
+        this.$refs.bgImage.style.paddingTop = 0;
+        this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`;
+        this.$refs.playBtn.style.display = "none";
+      } else {
+        this.$refs.bgImage.style.paddingTop = "70%";
+        this.$refs.bgImage.style.height = 0;
+        this.$refs.playBtn.style.display = "";
       }
       this.$refs.bgImage.style.zIndex = zIndex;
     }
   },
   components: {
     Scroll,
-    SongList
+    SongList,
+    Loading
   }
 };
 </script>
